@@ -11,6 +11,7 @@ public class Trt1 {
 
     AtomicLong minimumTimestamp = new AtomicLong(INITIAL_MIN_TIMESTAMP);
     AtomicLong maximumTimestamp = new AtomicLong(INITIAL_MAX_TIMESTAMP);
+    public volatile long collision = 0;
 
     /**
      * Default constructor.
@@ -24,6 +25,7 @@ public class Trt1 {
         while (timestamp < curMinTimestamp) {
           if (!this.minimumTimestamp.compareAndSet(curMinTimestamp, timestamp)) {
             curMinTimestamp = this.minimumTimestamp.get();
+            collision ++;
           } else {
             // successfully set minimumTimestamp, break
             break;
@@ -49,6 +51,7 @@ public class Trt1 {
         while (timestamp > curMaxTimestamp) {
           if (!this.maximumTimestamp.compareAndSet(curMaxTimestamp, timestamp)) {
             curMaxTimestamp = this.maximumTimestamp.get();
+            collision ++;
           } else {
             // successfully set maximumTimestamp, break
             break;

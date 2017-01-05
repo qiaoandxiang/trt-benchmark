@@ -71,7 +71,7 @@ public class MyBenchmark {
 
             long min = Long.MAX_VALUE, max = 0;
             for (int i = 0; i < NUM_KEYS; i ++) {
-                keys[i] = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+                keys[i] = i + ThreadLocalRandom.current().nextLong(30);
                 if (keys[i] < min) min = keys[i];
                 if (keys[i] > max) max = keys[i];
             }
@@ -87,6 +87,7 @@ public class MyBenchmark {
     @Benchmark
     public void testTrt1(Trt1Container container, RandomTestData testData) {
         testTrt1(container.trt, testData.keys);
+        System.out.println("Collision " + container.trt.collision);
     }
 
     private void testTrt2(final Trt2 trt, long[] keys) {
