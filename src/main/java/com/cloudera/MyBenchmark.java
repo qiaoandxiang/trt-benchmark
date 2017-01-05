@@ -67,7 +67,7 @@ public class MyBenchmark {
 
         public long[] keys = new long[NUM_KEYS];
 
-        @Setup(Level.Trial)
+        @Setup(Level.Invocation)
         public void setup() {
             Random rand = new Random(COUNTER.incrementAndGet());
 
