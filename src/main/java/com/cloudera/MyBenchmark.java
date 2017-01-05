@@ -33,6 +33,7 @@ package com.cloudera;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
@@ -58,21 +59,21 @@ public class MyBenchmark {
         public void setup() { trt  = new Trt2(); }
     }
 
-    private static final int NUM_KEYS = 1000000;
+    private static final int NUM_KEYS = 1000000 ;
 
     @State(Scope.Thread)
     public static class RandomTestData {
-
-        private static final AtomicLong COUNTER = new AtomicLong(0);
 
         public long[] keys = new long[NUM_KEYS];
 
         @Setup(Level.Invocation)
         public void setup() {
-            Random rand = new Random(COUNTER.incrementAndGet());
 
+            long min = Long.MAX_VALUE, max = 0;
             for (int i = 0; i < NUM_KEYS; i ++) {
-                keys[i] = rand.nextLong();
+                keys[i] = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+                if (keys[i] < min) min = keys[i];
+                if (keys[i] > max) max = keys[i];
             }
         }
     }
