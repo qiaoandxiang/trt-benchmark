@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by hsun on 1/4/17.
  */
-public class Trt1 {
+public class TrtLockFree {
     static final long INITIAL_MIN_TIMESTAMP = Long.MAX_VALUE;
     static final long INITIAL_MAX_TIMESTAMP = -1L;
 
@@ -17,30 +17,34 @@ public class Trt1 {
      * Default constructor.
      * Initializes TimeRange to be null
      */
-    public Trt1() {}
+    public TrtLockFree() {}
 
     void includeTimestamp(final long timestamp) {
-      long curMinTimestamp = this.minimumTimestamp.get();
-      if (timestamp < curMinTimestamp) {
+      long initialMinTimestamp = this.minimumTimestamp.get();
+      if (timestamp < initialMinTimestamp) {
+        long curMinTimestamp = initialMinTimestamp;
         while (timestamp < curMinTimestamp) {
           if (!this.minimumTimestamp.compareAndSet(curMinTimestamp, timestamp)) {
             curMinTimestamp = this.minimumTimestamp.get();
-            collision ++;
+            //collision ++;
           } else {
-            // successfully set minimumTimestamp, break
+            // successfully set minimumTimestamp, break.
             break;
           }
         }
 
         // When it hits here, there are two possibilities:
-        //  1). timestamp >= curMinTimestamp, someone already sets the min, return;
-        //  2). timestamp < curMinTimestamp, we set the min successfully. In this case,
-        //      we still need to check if curMinTimestamp == INITIAL_MIN_TIMESTAMP to see
-        //      if we need to proceed to set maximumTimestamp if no one else sets the
-        //      maximumTimestamp yet (the very first time call)
-        if (curMinTimestamp != INITIAL_MIN_TIMESTAMP) {
-          // If this has not been set by anyone yet, let's try to set
-          // the maximumTimestamp
+        //  1). timestamp >= curMinTimestamp, someone already sets the min. In this case,
+        //      it still needs to check if firstMinTimestamp == INITIAL_MIN_TIMESTAMP to see
+        //      if it needs to proceed to set maximumTimestamp. Someone may already set both
+        //      min/max to the same value(curMinTimestamp), need to check if maximumTimestamp needs
+        //      to be updated.
+        //  2). timestamp < curMinTimestamp, this call sets the min successfully. In this case,
+        //      it still needs to check if firstMinTimestamp == INITIAL_MIN_TIMESTAMP to see
+        //      if it needs to proceed to set maximumTimestamp.
+        if (initialMinTimestamp != INITIAL_MIN_TIMESTAMP) {
+          // Someone already sets maximumTimestamp and timestamp is less than maximumTimestamp,
+          // no need to proceed to set it.
           return;
         }
       }
@@ -51,7 +55,7 @@ public class Trt1 {
         while (timestamp > curMaxTimestamp) {
           if (!this.maximumTimestamp.compareAndSet(curMaxTimestamp, timestamp)) {
             curMaxTimestamp = this.maximumTimestamp.get();
-            collision ++;
+            //collision++;
           } else {
             // successfully set maximumTimestamp, break
             break;
@@ -59,7 +63,6 @@ public class Trt1 {
         }
       }
     }
-
 
     public boolean includesTimeRange(final long min, final long max) {
       return (this.minimumTimestamp.get() < max && this.maximumTimestamp.get() >= min);

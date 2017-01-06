@@ -3,7 +3,7 @@ package com.cloudera;
 /**
  * Created by hsun on 1/4/17.
  */
-public class Trt2 {
+public class TrtWithLock {
     static final long INITIAL_MIN_TIMESTAMP = Long.MAX_VALUE;
     static final long INITIAL_MAX_TIMESTAMP = -1L;
     long minimumTimestamp = INITIAL_MIN_TIMESTAMP;
@@ -13,7 +13,7 @@ public class Trt2 {
      * Default constructor.
      * Initializes TimeRange to be null
      */
-    public Trt2() {}
+    public TrtWithLock() {}
 
     private void set(final long min, final long max) {
       this.minimumTimestamp = min;
