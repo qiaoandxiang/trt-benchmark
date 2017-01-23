@@ -19,8 +19,9 @@ public class TrtLockFree {
      */
     public TrtLockFree() {}
 
-    void includeTimestamp(final long timestamp) {
+    boolean includeTimestamp(final long timestamp) {
       long initialMinTimestamp = this.minimumTimestamp.get();
+      boolean retValue = false;
       if (timestamp < initialMinTimestamp) {
         long curMinTimestamp = initialMinTimestamp;
         while (timestamp < curMinTimestamp) {
@@ -29,6 +30,7 @@ public class TrtLockFree {
             //collision ++;
           } else {
             // successfully set minimumTimestamp, break.
+            retValue = true;
             break;
           }
         }
@@ -45,7 +47,7 @@ public class TrtLockFree {
         if (initialMinTimestamp != INITIAL_MIN_TIMESTAMP) {
           // Someone already sets maximumTimestamp and timestamp is less than maximumTimestamp,
           // no need to proceed to set it.
-          return;
+          return retValue;
         }
       }
 
@@ -58,13 +60,24 @@ public class TrtLockFree {
             //collision++;
           } else {
             // successfully set maximumTimestamp, break
+            retValue = true;
             break;
           }
         }
       }
+      return retValue;
     }
 
     public boolean includesTimeRange(final long min, final long max) {
       return (this.minimumTimestamp.get() < max && this.maximumTimestamp.get() >= min);
     }
+
+  public synchronized long getMin() {
+    return minimumTimestamp.get();
+  }
+
+  public synchronized long getMax() {
+    return maximumTimestamp.get();
+  }
+
 }

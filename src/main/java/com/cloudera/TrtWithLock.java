@@ -30,15 +30,17 @@ public class TrtWithLock {
       return true;
     }
 
-    public synchronized void includeTimestamp(final long timestamp) {
+    public synchronized boolean includeTimestamp(final long timestamp) {
       // Do test outside of synchronization block.  Synchronization in here can be problematic
       // when many threads writing one Store -- they can all pile up trying to add in here.
       // Happens when doing big write upload where we are hammering on one region.
+      boolean retValue = false;
       if (timestamp < this.minimumTimestamp) {
         synchronized (this) {
           if (!init(timestamp)) {
             if (timestamp < this.minimumTimestamp) {
               this.minimumTimestamp = timestamp;
+              retValue = true;
             }
           }
         }
@@ -47,10 +49,12 @@ public class TrtWithLock {
           if (!init(timestamp)) {
             if (this.maximumTimestamp < timestamp) {
               this.maximumTimestamp =  timestamp;
+              retValue = true;
             }
           }
         }
       }
+      return retValue;
     }
 
     public synchronized boolean includesTimeRange(final long min, final long max) {
