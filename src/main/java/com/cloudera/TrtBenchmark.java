@@ -84,70 +84,86 @@ public class TrtBenchmark {
         }
     }
 
-    private static void testTrtLockFreeWrite(final TrtLockFree trt, long[] keys,
+    private static long testTrtLockFreeWrite(final TrtLockFree trt, long[] keys,
         Blackhole blackhole) {
+        long r = 0;
         for (long key : keys) {
-            blackhole.consume(trt.includeTimestamp(key));
+            //blackhole.consume(trt.includeTimestamp(key));
+            if (trt.includeTimestamp(key)) r ++;
+            else r --;
         }
+        return r;
     }
 
-    private static void testTrtLockFreeRead(final TrtLockFree trt, long[] keys,
+    private static long testTrtLockFreeRead(final TrtLockFree trt, long[] keys,
         Blackhole blackhole) {
+        long r = 0;
         for (int i = 0; i < NUM_KEYS * 2; i += 2) {
-            blackhole.consume(trt.includesTimeRange(keys[i], keys[i + 1]));
+            //blackhole.consume(trt.includesTimeRange(keys[i], keys[i + 1]));
+            if (trt.includesTimeRange(keys[i], keys[i + 1])) r ++;
+            else r --;
         }
+        return r;
     }
 
-    private static void testTrtWithLockWrite(final TrtWithLock trt, long[] keys,
+    private static long testTrtWithLockWrite(final TrtWithLock trt, long[] keys,
         Blackhole blackhole) {
+        long r = 0;
         for (long key : keys) {
-            blackhole.consume(trt.includeTimestamp(key));
+            //blackhole.consume(trt.includeTimestamp(key));
+            if (trt.includeTimestamp(key)) r ++;
+            else r --;
         }
+        return r;
     }
 
-    private static void testTrtWithLockRead(final TrtWithLock trt, long[] keys,
+    private static long testTrtWithLockRead(final TrtWithLock trt, long[] keys,
         Blackhole blackhole) {
+        long r = 0;
         for (int i = 0; i < NUM_KEYS * 2; i += 2) {
-            blackhole.consume(trt.includesTimeRange(keys[i], keys[i + 1]));
+            //blackhole.consume(trt.includesTimeRange(keys[i], keys[i + 1]));
+            if (trt.includesTimeRange(keys[i], keys[i + 1])) r ++;
+            else r --;
         }
+        return r;
     }
 
     @Group("withlock")
     @Benchmark
     @GroupThreads(20)
-    public void testTrtWithLockWrite(TrtWithLockContainer container, RandomTestWriteData testData,
+    public long testTrtWithLockWrite(TrtWithLockContainer container, RandomTestWriteData testData,
         Blackhole blackhole) {
         //System.out.println("ContainerWriteWL " + container.trt);
-        testTrtWithLockWrite(container.trt, testData.keys, blackhole);
+        return testTrtWithLockWrite(container.trt, testData.keys, blackhole);
     }
 
     @Group("withlock")
     @Benchmark
     @GroupThreads(20)
-    public void testTrtWithLockRead(TrtWithLockContainer container, RandomTestReadData testData,
+    public long testTrtWithLockRead(TrtWithLockContainer container, RandomTestReadData testData,
         Blackhole blackhole) {
         //System.out.println("ContainerReadWL " + container.trt);
-        testTrtWithLockRead(container.trt, testData.keys, blackhole);
+        return testTrtWithLockRead(container.trt, testData.keys, blackhole);
         //System.out.println("Min " + container.trt.getMin() + " Max " + container.trt.getMax());
     }
 
     @Group("lockfree")
     @Benchmark
     @GroupThreads(20)
-    public void testTrtLockFreeWrite(TrtLockFreeContainter container, RandomTestWriteData testData,
+    public long testTrtLockFreeWrite(TrtLockFreeContainter container, RandomTestWriteData testData,
         Blackhole blackhole) {
         //System.out.println("ContainerWriteLF " + container.trt);
-        testTrtLockFreeWrite(container.trt, testData.keys, blackhole);
+        return testTrtLockFreeWrite(container.trt, testData.keys, blackhole);
         //System.out.println("Collision " + container.trt.collision);
     }
 
     @Group("lockfree")
     @Benchmark
     @GroupThreads(20)
-    public void testTrtLockFreeRead(TrtLockFreeContainter container, RandomTestReadData testData,
+    public long testTrtLockFreeRead(TrtLockFreeContainter container, RandomTestReadData testData,
         Blackhole blackhole) {
         //System.out.println("ContainerReadLF " + container.trt);
-        testTrtLockFreeRead(container.trt, testData.keys, blackhole);
+        return testTrtLockFreeRead(container.trt, testData.keys, blackhole);
         //System.out.println("Min " + container.trt.getMin() + " Max " + container.trt.getMax());
     }
 
